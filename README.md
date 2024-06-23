@@ -1,6 +1,8 @@
 # React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a repo after i watch video from Pak Sandhikagalih titled "Membuat App CATATAN BELANJA | Tutorial REACT "Paling Masuk Akal" untuk PEMULA 🤩🌐"
+
+there is a additional features , it will change a background of squares after a winner decided
 
 Currently, two official plugins are available:
 
