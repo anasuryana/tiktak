@@ -1,27 +1,28 @@
 import { useState } from 'react'
 
-function Square({ value, onSquareClick }) {
-  return <button className='square' onClick={onSquareClick}>
+function Square({ value, onSquareClick, aColor }) {
+  return <button className='square' onClick={onSquareClick} style={{ backgroundColor: aColor }}>
     {value}
   </button>
 }
 
-function Board({ xIsNext, squares, onPlay, xWinner }) {
+function Board({ xIsNext, squares, onPlay, squaresColor, onEnd }) {
 
   function handleClick(i) {
+
     if (squares[i] || decideWinner(squares)) return;
     const nextSquares = squares.slice();
     nextSquares[i] = xIsNext ? 'X' : 'O'
-    onPlay(nextSquares)
+
+    const nextSquaresColor = squaresColor.slice();
+    nextSquaresColor[i] = 'white'
+    onPlay(nextSquares, nextSquaresColor)
   }
 
   const winner = decideWinner(squares);
   let status = ''
   if (winner) {
-    const squareComponentList = document.getElementsByClassName('board')[0].childNodes  
-    squareComponentList[winner[1]].style.backgroundColor = 'yellow'
-    squareComponentList[winner[2]].style.backgroundColor = 'yellow'
-    squareComponentList[winner[3]].style.backgroundColor = 'yellow'   
+    onEnd([winner[1], winner[2], winner[3]])
     status = `Winner : ${winner[0]}`
   } else {
     status = `Next player : ${(xIsNext ? 'X' : 'O')}`
@@ -32,15 +33,15 @@ function Board({ xIsNext, squares, onPlay, xWinner }) {
       <div className='status'>{status}</div>
       <div className='board'>
         {/* pembungkusan handleClick untuk menghindari rerender */}
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)} pWinner={xWinner[0]} />
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)} pWinner={xWinner[1]}/>
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)} pWinner={xWinner[2]}/>
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)} pWinner={xWinner[3]}/>
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)} pWinner={xWinner[4]}/>
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)} pWinner={xWinner[5]}/>
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)} pWinner={xWinner[6]}/>
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)} pWinner={xWinner[7]}/>
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)} pWinner={xWinner[8]}/>
+        <Square value={squares[0]} onSquareClick={() => handleClick(0)} aColor={squaresColor[0]} />
+        <Square value={squares[1]} onSquareClick={() => handleClick(1)} aColor={squaresColor[1]} />
+        <Square value={squares[2]} onSquareClick={() => handleClick(2)} aColor={squaresColor[2]} />
+        <Square value={squares[3]} onSquareClick={() => handleClick(3)} aColor={squaresColor[3]} />
+        <Square value={squares[4]} onSquareClick={() => handleClick(4)} aColor={squaresColor[4]} />
+        <Square value={squares[5]} onSquareClick={() => handleClick(5)} aColor={squaresColor[5]} />
+        <Square value={squares[6]} onSquareClick={() => handleClick(6)} aColor={squaresColor[6]} />
+        <Square value={squares[7]} onSquareClick={() => handleClick(7)} aColor={squaresColor[7]} />
+        <Square value={squares[8]} onSquareClick={() => handleClick(8)} aColor={squaresColor[8]} />
       </div>
     </>
   )
@@ -59,9 +60,9 @@ function decideWinner(squares) {
   ]
 
   for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i]    
+    const [a, b, c] = lines[i]
     if (squares[a] && squares[a] === squares[b] && squares[b] === squares[c]) {
-      return [squares[a], a, b, c]      
+      return [squares[a], a, b, c]
     }
   }
 
@@ -70,29 +71,31 @@ function decideWinner(squares) {
 
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)])
-  const [winnerFlag, setWinnerFlag] = useState([Array(9).fill('orange')])
+  const [historyColor, setHistoryColor] = useState([Array(9).fill('white')])
   const [currentMove, setCurrentMove] = useState(0)
   const xIsNext = currentMove % 2 === 0
   const currentSquares = history[currentMove]
+  const currentSquaresColor = historyColor[currentMove]
 
   function jumpTo(nextMove) {
     setCurrentMove(nextMove)
-    const squareComponentList = document.getElementsByClassName('board')[0].childNodes
-    squareComponentList[0].style.backgroundColor = 'white'
-    squareComponentList[1].style.backgroundColor = 'white'
-    squareComponentList[2].style.backgroundColor = 'white'
-    squareComponentList[3].style.backgroundColor = 'white'
-    squareComponentList[4].style.backgroundColor = 'white'
-    squareComponentList[5].style.backgroundColor = 'white'
-    squareComponentList[6].style.backgroundColor = 'white'
-    squareComponentList[7].style.backgroundColor = 'white'
-    squareComponentList[8].style.backgroundColor = 'white'
   }
 
-  function handlePlay(nextSquares) {
+  function handlePlay(nextSquares, nextSquaresColor) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares]
     setHistory(nextHistory)
+
+    const nextHistoryColor = [...historyColor.slice(0, currentMove + 1), nextSquaresColor]
+    setHistoryColor(nextHistoryColor)
+
     setCurrentMove(nextHistory.length - 1)
+  }
+
+  function handleEnd(lineSquare) {
+    const _HistoryColor = [...historyColor.slice()]
+    _HistoryColor[_HistoryColor.length - 1][lineSquare[0]] = 'yellow'
+    _HistoryColor[_HistoryColor.length - 1][lineSquare[1]] = 'yellow'
+    _HistoryColor[_HistoryColor.length - 1][lineSquare[2]] = 'yellow'
   }
 
   const moves = history.map((squares, move) => {
@@ -113,7 +116,7 @@ export default function Game() {
   return (
     <div className='game'>
       <div className='game-board'>
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} xWinner={winnerFlag} />
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} squaresColor={currentSquaresColor} onEnd={handleEnd} />
       </div>
       <div className='game-info'>
         <ol>
