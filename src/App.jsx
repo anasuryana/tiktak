@@ -6,25 +6,35 @@ function Square({ value, onSquareClick, aColor }) {
   </button>
 }
 
-function Board({ xIsNext, squares, onPlay, squaresColor, onEnd }) {
-
+function Board({ xIsNext, squares, onPlay }) {
+  const myColor = Array(9).fill('white')
+  
   function handleClick(i) {
 
     if (squares[i] || decideWinner(squares)) return;
     const nextSquares = squares.slice();
     nextSquares[i] = xIsNext ? 'X' : 'O'
 
-    const nextSquaresColor = squaresColor.slice();
-    nextSquaresColor[i] = 'white'
-    onPlay(nextSquares, nextSquaresColor)
+    onPlay(nextSquares)
   }
 
   const winner = decideWinner(squares);
   let status = ''
   if (winner) {
-    onEnd([winner[1], winner[2], winner[3]])
     status = `Winner : ${winner[0]}`
+    myColor[winner[1]] = 'yellow'
+    myColor[winner[2]] = 'yellow'
+    myColor[winner[3]] = 'yellow'
   } else {
+    myColor[0] = 'white'
+    myColor[1] = 'white'
+    myColor[2] = 'white'
+    myColor[3] = 'white'
+    myColor[4] = 'white'
+    myColor[5] = 'white'
+    myColor[6] = 'white'
+    myColor[7] = 'white'
+    myColor[8] = 'white'
     status = `Next player : ${(xIsNext ? 'X' : 'O')}`
   }
 
@@ -33,15 +43,15 @@ function Board({ xIsNext, squares, onPlay, squaresColor, onEnd }) {
       <div className='status'>{status}</div>
       <div className='board'>
         {/* pembungkusan handleClick untuk menghindari rerender */}
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)} aColor={squaresColor[0]} />
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)} aColor={squaresColor[1]} />
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)} aColor={squaresColor[2]} />
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)} aColor={squaresColor[3]} />
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)} aColor={squaresColor[4]} />
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)} aColor={squaresColor[5]} />
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)} aColor={squaresColor[6]} />
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)} aColor={squaresColor[7]} />
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)} aColor={squaresColor[8]} />
+        <Square value={squares[0]} onSquareClick={() => handleClick(0)} aColor={myColor[0]} />
+        <Square value={squares[1]} onSquareClick={() => handleClick(1)} aColor={myColor[1]} />
+        <Square value={squares[2]} onSquareClick={() => handleClick(2)} aColor={myColor[2]} />
+        <Square value={squares[3]} onSquareClick={() => handleClick(3)} aColor={myColor[3]} />
+        <Square value={squares[4]} onSquareClick={() => handleClick(4)} aColor={myColor[4]} />
+        <Square value={squares[5]} onSquareClick={() => handleClick(5)} aColor={myColor[5]} />
+        <Square value={squares[6]} onSquareClick={() => handleClick(6)} aColor={myColor[6]} />
+        <Square value={squares[7]} onSquareClick={() => handleClick(7)} aColor={myColor[7]} />
+        <Square value={squares[8]} onSquareClick={() => handleClick(8)} aColor={myColor[8]} />
       </div>
     </>
   )
@@ -71,31 +81,19 @@ function decideWinner(squares) {
 
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)])
-  const [historyColor, setHistoryColor] = useState([Array(9).fill('white')])
   const [currentMove, setCurrentMove] = useState(0)
   const xIsNext = currentMove % 2 === 0
   const currentSquares = history[currentMove]
-  const currentSquaresColor = historyColor[currentMove]
 
   function jumpTo(nextMove) {
     setCurrentMove(nextMove)
   }
 
-  function handlePlay(nextSquares, nextSquaresColor) {
+  function handlePlay(nextSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares]
     setHistory(nextHistory)
 
-    const nextHistoryColor = [...historyColor.slice(0, currentMove + 1), nextSquaresColor]
-    setHistoryColor(nextHistoryColor)
-
     setCurrentMove(nextHistory.length - 1)
-  }
-
-  function handleEnd(lineSquare) {
-    const _HistoryColor = [...historyColor.slice()]
-    _HistoryColor[_HistoryColor.length - 1][lineSquare[0]] = 'yellow'
-    _HistoryColor[_HistoryColor.length - 1][lineSquare[1]] = 'yellow'
-    _HistoryColor[_HistoryColor.length - 1][lineSquare[2]] = 'yellow'
   }
 
   const moves = history.map((squares, move) => {
@@ -116,7 +114,7 @@ export default function Game() {
   return (
     <div className='game'>
       <div className='game-board'>
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} squaresColor={currentSquaresColor} onEnd={handleEnd} />
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
       </div>
       <div className='game-info'>
         <ol>
